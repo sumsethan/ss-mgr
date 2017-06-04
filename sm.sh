@@ -25,7 +25,7 @@ install_soft_for_each(){
 	check_sys
 	if [[ ${release} = "centos" ]]; then
 		yum groupinstall "Development Tools" -y
-		yum install -y wget curl tar unzip -y
+		yum install -y wget curl tar unzip git -y
 		yum install -y gcc gettext gettext-devel unzip autoconf automake make zlib-devel libtool xmlto asciidoc udns-devel libev-devel vim epel-release libsodium-devel libsodium
 		yum install -y pcre pcre-devel perl perl-devel cpio expat-devel openssl-devel mbedtls-devel screen nano
 	else
@@ -60,8 +60,8 @@ install_libsodium(){
 }
 install_ss_libev(){
 	cd /root 
-	wget -N -P  /root https://raw.githubusercontent.com/mmmwhy/ss-mgr/master/shadowsocks-libev-3.0.3.tar.gz
-	tar -xf shadowsocks-libev-3.0.3.tar.gz && rm -rf shadowsocks-libev-3.0.3.tar.gz && cd shadowsocks-libev-3.0.3
+	git clone https://github.com/shadowsocks/shadowsocks-libev.git
+	cd shadowsocks-libev
 	yum install epel-release -y
 	yum install gcc gettext autoconf libtool automake make pcre-devel asciidoc xmlto udns-devel libev-devel -y
 	./configure
@@ -84,7 +84,7 @@ install_ss_mgr(){
 	install_nodejs
 	install_libsodium
 	install_ss_for_each
-	git clone https://github.com/mmmwhy/shadowsocks-manager.git "/root/shadowsocks-manager"
+	git clone https://github.com/sumsethan/shadowsocks-manager.git "/root/shadowsocks-manager"
 	cd /root/shadowsocks-manager
 	npm i
 	ln -s /usr/local/nodejs/node-v6.9.1-linux-x64/bin/ssmgr /usr/local/bin/ssmgr
@@ -93,24 +93,23 @@ install_ss_mgr(){
 ss_mgr_s(){
 	install_ss_mgr
 	mkdir /root/.ssmgr
-	wget -N -P  /root/.ssmgr/ https://raw.githubusercontent.com/mmmwhy/ss-mgr/master/ss.yml
+	wget -N -P  /root/.ssmgr/ https://raw.githubusercontent.com/sumsethan/ss-mgr/master/ss.yml
 	cd /root/shadowsocks-manager/
 	screen -dmS ss node server.js -c /root/.ssmgr/ss.yml
 }
 ss_mgr_m(){
 	ss_mgr_s
 	cd /root/shadowsocks-manager/
-	wget -N -P  /root/.ssmgr/ https://raw.githubusercontent.com/mmmwhy/ss-mgr/master/webgui.yml
+	wget -N -P  /root/.ssmgr/ https://raw.githubusercontent.com/sumsethan/ss-mgr/master/webgui.yml
 	sed -i "s#127.0.0.1#${IPAddress}#g" /root/.ssmgr/webgui.yml
 	screen -dmS webgui node server.js -c /root/.ssmgr/webgui.yml
 }
-ss_mgr_m
+ss_mgr_s
 iptables -I INPUT -p tcp -m tcp --dport 104 -j ACCEPT
 iptables -I INPUT -p tcp -m tcp --dport 1024: -j ACCEPT
 iptables-save
 	echo "#############################################################"
 	echo "# Install SS-mgr  Success                                   #"
-	echo "# Github: https://github.com/mmmwhy/ss-mgr                  #"
-	echo "# Author: Feiyang.li                                        #"
-	echo "# http://feiyang.li/2017/05/14/ss-mgr/index.html            #"
+	echo "# Github: https://github.com/sumsethan/ss-mgr                  #"
+	echo "# Author: sumsethan                                        #"
 	echo "#############################################################"
